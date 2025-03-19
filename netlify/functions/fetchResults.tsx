@@ -1,13 +1,13 @@
 import pg from "pg";
 const { Client } = pg;
 
-// interface QueryEvent {
-//     queryStringParameters: {
-//         query: string;
-//     };
-// }
+interface Event {
+    queryStringParameters: {
+        query: string;
+    };
+}
 
-export const handler = async (event) => {
+export const handler = async (event: Event) => {
     const client = new Client({
         connectionString: process.env.DB_CONNECT_STRING,
     })
