@@ -29,7 +29,7 @@ export default function Home() {
         const authState = localStorage.getItem("isAuthenticated");
         const dbname = localStorage.getItem("dbname");
         setAuthenticated(authState === "true");
-        setDbName(dbname);
+        setDbName(dbname ?? "");
     }, []);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
