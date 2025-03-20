@@ -3,7 +3,9 @@ const { Client } = pg;
 
 interface Event {
     queryStringParameters: {
+        dbname: string;
         query: string;
+
     };
 }
 
