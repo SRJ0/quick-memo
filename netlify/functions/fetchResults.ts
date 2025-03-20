@@ -16,19 +16,27 @@ export const handler = async (event: Event) => {
         const query = event.queryStringParameters.query;
 
         const res = await client.query(
-            "SELECT * FROM INFO WHERE subject LIKE $1", [`${query}%`]
+            "SELECT * FROM dummy WHERE subject LIKE $1", [`${query}%`]
         );
 
         await client.end();
 
         return {
             statusCode: 200,
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "Content-Type",
+            },
             body: JSON.stringify(res.rows)
         };
     } catch (error) {
         console.log(error);
         return {
             statusCode: 500,
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "Content-Type",
+            },
             body: JSON.stringify(error)
         };
     }

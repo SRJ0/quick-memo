@@ -1,4 +1,3 @@
 [build]
     publish = ".next"
     functions = "netlify/functions"
-    command = "tsc -v && npm run build"
