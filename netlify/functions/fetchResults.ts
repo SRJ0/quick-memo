@@ -14,10 +14,9 @@ export const handler = async (event: Event) => {
     try {
         await client.connect();
         const query = event.queryStringParameters.query;
-
-        const res = await client.query(
-            "SELECT * FROM dummy WHERE subject LIKE $1", [`${query}%`]
-        );
+        const dbname = event.queryStringParameters.dbname;
+        const queryString = `SELECT * FROM ${dbname} WHERE subject LIKE $1`;
+        const res = await client.query(queryString, [`${query}%`]);
 
         await client.end();
 

@@ -1,5 +1,6 @@
 "use client"
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 interface Result {
     id: number;
@@ -20,21 +21,46 @@ const getBGColor = (grade: number) => {
 export default function Home() {
     const [inputValue, setInputValue] = useState("");
     const [results, displayResults] = useState<Result[]>([]);
+    const [isAuthenticated, setAuthenticated] = useState(false);
+    const [dbName, setDbName] = useState(""); // Add state for dbName
+    const router = useRouter();
+
+    useEffect(() => {
+        const authState = localStorage.getItem("isAuthenticated");
+        const dbname = localStorage.getItem("dbname");
+        setAuthenticated(authState === "true");
+        setDbName(dbname);
+    }, []);
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setInputValue(e.target.value);
-    };
+    }
+
     const handleInputKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter") {
             handleButtonClick();
         }
     }
     const handleButtonClick = () => {
-        fetchAndDisplay(inputValue);
+        if (isAuthenticated) {
+            fetchAndDisplay(inputValue);
+        } else {
+            alert("Please log in to use this feature");
+        }
     };
     const fetchAndDisplay = async (value: string) => {
-        const response = await fetch(`/.netlify/functions/fetchResults?query=${value}`);
+        const response = await fetch(`/.netlify/functions/fetchResults?query=${value}&dbname=${dbName}`);
         const results = await response.json();
         displayResults(results);
+    }
+    const handleLoginClick = () => {
+        router.push("/login");
+    }
+    const handleLogoutClick = () => {
+        localStorage.removeItem("isAuthenticated");
+        localStorage.removeItem("dbname");
+        setAuthenticated(false);
+        alert("Logged out successfully");
     }
 
     return (
@@ -66,6 +92,21 @@ export default function Home() {
             ))}
           </div>
         </main>
+        {isAuthenticated ? (
+            <button
+                className="bg-red-300 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline fixed top-10 right-20 m-4"
+                onClick={handleLogoutClick}
+            >
+                Logout
+            </button>
+        ) : (
+            <button
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline fixed top-10 right-20 m-4"
+                onClick={handleLoginClick}
+            >
+                Login
+            </button>
+        )}
       </div>
     );
 }
