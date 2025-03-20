@@ -7,7 +7,7 @@ interface Result {
     memo: string;
     grade: number;
 }
-const isLocal = process.env.NODE_ENV === "development";
+// const isLocal = process.env.NODE_ENV === "development";
 
 const getBGColor = (grade: number) => {
     if (grade === 1) return "#FFB3BA";
