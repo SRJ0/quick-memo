@@ -48,10 +48,15 @@ export default function Home() {
             alert("Please log in to use this feature");
         }
     };
-    const fetchAndDisplay = async (value: string) => {
-        const response = await fetch(`/.netlify/functions/fetchResults?query=${value}&dbname=${dbName}`);
-        const results = await response.json();
-        displayResults(results);
+    const handleModButton = (id: number) => {
+        if (isAuthenticated) {
+            modAreaDisplay(id);
+        } else {
+            alert("Please log in to use this feature");
+        }
+    };
+    const modAreaDisplay = (id: number) => {
+        alert(id);
     }
     const handleLoginClick = () => {
         router.push("/login");
@@ -62,7 +67,16 @@ export default function Home() {
         setAuthenticated(false);
         alert("Logged out successfully");
     }
-
+    const fetchAndDisplay = async (value: string) => {
+        try {
+            const response = await fetch(`/.netlify/functions/fetchResults?query=${value}&dbname=${dbName}`);
+            const results = await response.json();
+            console.log("Fetched results:", results); // Log the results
+            displayResults(results);
+        } catch (error) {
+            console.error("Error fetching results:", error);
+        }
+    }
     return (
       <div className="grid grid-rows-[20px_1fr_20px] items-start justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
         <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
@@ -83,13 +97,23 @@ export default function Home() {
               Search
             </a>
           </div>
-          <div className="mt-4">
-            {results.map((result) => (
-                <div key={result.id}>
-                  <p style={{backgroundColor: getBGColor(result.grade)}}>{result.subject}</p>
-                  <p>{result.memo}</p>
-                </div>
-            ))}
+          <div className="mt-4 w-full">
+            {results.length > 0 ? (
+                results.map((result) => (
+                    <div key={result.id} className="border border-black p-8 relative mb-4 w-full">
+                        <button
+                            onClick={() => handleModButton(result.id)}
+                            className="absolute top-2 right-2 bg-blue-500 text-white px-2 py-1 rounded"
+                        >
+                            Modify
+                        </button>
+                        <span className="p-2 absolute top-2 left-2" style={{ backgroundColor: getBGColor(result.grade) }}>{result.subject}</span>
+                        <p className="mt-5">{result.memo}</p>
+                    </div>
+                ))
+            ) : (
+                <p>No results found</p>
+            )}
           </div>
         </main>
         {isAuthenticated ? (
