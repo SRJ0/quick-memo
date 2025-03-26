@@ -23,6 +23,9 @@ export default function Home() {
     const [results, displayResults] = useState<Result[]>([]);
     const [isAuthenticated, setAuthenticated] = useState(false);
     const [dbName, setDbName] = useState(""); // Add state for dbName
+    const [editableId, setEditableId] = useState<number | null>(null);
+    const [editableText, setEditableText] = useState<string>("");
+    const [editMode, setEditMode] = useState<{[key:number]:boolean}>({});
     const router = useRouter();
 
     useEffect(() => {
@@ -50,14 +53,33 @@ export default function Home() {
     };
     const handleModButton = (id: number) => {
         if (isAuthenticated) {
-            modAreaDisplay(id);
+            alert(id)
+            if (editMode[id]) {
+                handleSaveButton(id);
+            } else {
+                makeEditable(id);
+            }
         } else {
             alert("Please log in to use this feature");
         }
     };
-    const modAreaDisplay = (id: number) => {
-        alert(id);
+    const makeEditable = (id: number) => {
+        setEditableId(id)
+        const result = results.find(result => result.id === id);
+        if (result) {
+            setEditableText(result.memo);
+        }
+        setEditMode(prev => ({ ...prev, [id]: true }));
     }
+    const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setEditableText(e.target.value);
+    };
+
+    const handleSaveButton = (id: number) => {
+        // Save the updated memo to the server or state
+        setEditableId(null);
+        setEditMode(prev => ({...prev, [id]: false}));
+    };
     const handleLoginClick = () => {
         router.push("/login");
     }
@@ -103,12 +125,24 @@ export default function Home() {
                     <div key={result.id} className="border border-black p-8 relative mb-4 w-full">
                         <button
                             onClick={() => handleModButton(result.id)}
-                            className="absolute top-2 right-2 bg-blue-500 text-white px-2 py-1 rounded"
+                            className={editableId === result.id && editMode[result.id]
+                                ? "absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded"
+                                : "absolute top-2 right-2 bg-blue-500 text-white px-2 py-1 rounded"}
                         >
-                            Modify
+                            {editableId === result.id && editMode[result.id] ? "Save" : "Edit"}
                         </button>
                         <span className="p-2 absolute top-2 left-2" style={{ backgroundColor: getBGColor(result.grade) }}>{result.subject}</span>
-                        <p className="mt-5">{result.memo}</p>
+                        {editableId === result.id ? (
+                            <div>
+                                <textarea
+                                    className="mt-5 w-full border border-gray-300 rounded p-2"
+                                    value={editableText}
+                                    onChange={handleTextareaChange}
+                                />
+                            </div>
+                        ) : (
+                            <p className="mt-5">{result.memo}</p>
+                        )}
                     </div>
                 ))
             ) : (
